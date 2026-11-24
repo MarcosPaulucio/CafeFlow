@@ -22,6 +22,7 @@ Aplicação web responsiva e offline-first para controle pessoal de secagem e pi
 - Backup dos clientes, serviços e cotação em arquivo JSON, com validação na importação e opção de mesclar sem sobrescrever dados ou substituir após confirmação.
 - Os backups ficam sob responsabilidade do usuário; armazene a cópia baixada fora do navegador. A importação aceita arquivos JSON de até 10 MB.
 - PWA com Service Worker para uso offline após a primeira abertura.
+- Preparação do banco Supabase com políticas RLS por conta em `supabase/schema.sql`.
 
 ## Como executar
 O Service Worker e a instalação PWA precisam de `localhost` ou HTTPS. Não abra apenas clicando duas vezes no `index.html`.
@@ -39,7 +40,18 @@ O Service Worker e a instalação PWA precisam de `localhost` ou HTTPS. Não abr
 Instale a extensão **Live Server**, clique com o botão direito em `index.html` e escolha **Open with Live Server**.
 
 ## Dados e privacidade
-Os clientes e serviços são armazenados no IndexedDB do navegador/dispositivo. Não há conta, servidor ou sincronização em nuvem nesta versão. Limpar os dados do navegador pode apagar os registros. Exporte um backup antes de trocar de aparelho e restaure-o no outro dispositivo.
+Clientes e serviços ainda são armazenados no IndexedDB do navegador/dispositivo; a sincronização em nuvem ainda não está ativada. O esquema inicial do Supabase já está preparado, mas não conecte nem importe dados antes de concluir a configuração de autenticação e sincronização. Limpar os dados do navegador pode apagar os registros locais. Exporte um backup antes de trocar de aparelho.
+
+## Preparação para sincronização Supabase
+O CafeFlow foi definido para usar uma conta compartilhada pelo estabelecimento nos seus aparelhos. O arquivo `supabase/schema.sql` cria tabelas para clientes, serviços e cotações, com políticas de Row Level Security que restringem cada conta aos próprios dados.
+
+1. Crie um projeto no Supabase e abra o **SQL Editor**.
+2. Execute o conteúdo de `supabase/schema.sql`.
+3. Configure um arquivo `js/supabase-config.js` a partir de `js/supabase-config.example.js`, usando a URL do projeto e a chave **publishable** (ou anon) do projeto.
+4. Nunca use nem publique a chave `service_role`. O arquivo local de configuração é ignorado pelo Git.
+5. A autenticação, sincronização offline e migração de backup JSON ainda precisam ser implementadas antes de usar os dados na nuvem.
+
+O arquivo de backup JSON continuará sendo o caminho de migração escolhido para os registros locais. A importação deverá ser feita após o login, com prévia e confirmação; nenhum registro local é enviado automaticamente.
 
 ## Observações desta versão
 - Esta é uma primeira versão funcional para testes, ainda não auditada para produção.

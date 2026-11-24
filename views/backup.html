@@ -1,0 +1,19 @@
+<section id="backup" class="view" hidden>
+  <div class="page-heading"><div><p class="eyebrow">SEGURANÇA DOS DADOS</p><h1>Backup e restauração</h1><p class="muted">Exporte clientes e serviços para guardar uma cópia fora do navegador.</p></div></div>
+  <div class="two-col backup-layout">
+    <article class="panel">
+      <div class="panel-title"><div><h2>Salvar backup</h2><p class="muted">Baixe um arquivo JSON com seus dados e a cotação salva.</p></div></div>
+      <p class="hint">Guarde o arquivo em um local seguro, como OneDrive, Google Drive ou um pendrive. O backup contém dados pessoais dos clientes.</p>
+      <button class="primary" id="backupExportBtn" type="button">Baixar backup JSON</button>
+    </article>
+    <article class="panel">
+      <div class="panel-title"><div><h2>Restaurar backup</h2><p class="muted">Selecione um arquivo JSON exportado pelo CafeFlow.</p></div></div>
+      <label for="backupFile">Arquivo de backup<input id="backupFile" type="file" accept=".json,application/json"></label>
+      <div id="backupPreview" class="backup-preview" hidden></div>
+      <label for="backupMode">Como restaurar<select id="backupMode"><option value="merge">Mesclar: adicionar somente registros que ainda não existem</option><option value="replace">Substituir todos os clientes e serviços atuais</option></select></label>
+      <p id="backupModeHint" class="hint">Na mesclagem, os registros atuais têm prioridade quando o ID já existe.</p>
+      <button class="primary" id="backupImportBtn" type="button" disabled>Restaurar backup</button>
+    </article>
+  </div>
+  <p id="backupStatus" class="backup-status" role="status" aria-live="polite">A restauração só é executada após selecionar um arquivo válido e confirmar a ação.</p>
+</section>

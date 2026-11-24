@@ -1,0 +1,17 @@
+<section id="quotation" class="view" hidden>
+  <div class="page-heading"><div><p class="eyebrow">MERCADO</p><h1>Cotação do café</h1><p id="quoteDate" class="muted"></p></div></div>
+  <div class="two-col quote-layout">
+    <article class="panel quote-form">
+      <div class="panel-title"><div><h2>Estimativa de venda</h2><p class="muted">Informe o preço por saca e a quantidade.</p></div></div>
+      <label for="quoteRate">Cotação por saca de 60 kg (R$)<span class="field-prefix"><span>R$</span><input id="quoteRate" type="text" inputmode="decimal" placeholder="Informe o valor"></span></label>
+      <label for="quoteSacks">Quantidade de sacas<input id="quoteSacks" type="text" inputmode="decimal" placeholder="Informe a quantidade"></label>
+      <button class="primary" id="calculateQuoteBtn" type="button">Calcular</button>
+      <p class="hint">A estimativa é calculada multiplicando a cotação pela quantidade de sacas informada.</p>
+    </article>
+    <article class="panel quote-result">
+      <p class="eyebrow">VALOR ESTIMADO DA VENDA</p>
+      <strong id="estimatedSale">R$ 0,00</strong>
+      <p id="quoteBreakdown" class="muted">Informe a cotação e a quantidade de sacas.</p>
+    </article>
+  </div>
+</section>

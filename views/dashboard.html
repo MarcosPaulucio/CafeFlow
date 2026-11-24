@@ -1,0 +1,14 @@
+<section id="dashboard" class="view">
+  <div class="page-heading"><div><p class="eyebrow">VISÃO GERAL</p><h1>Painel de operações</h1><p class="muted">Acompanhe o fluxo do café em um só lugar.</p></div><button class="primary" id="newServiceTop">＋ Novo serviço</button></div>
+  <div class="stats">
+    <article class="stat"><span>Serviços ativos</span><strong id="statActive">0</strong><small>Em andamento</small></article>
+    <article class="stat"><span>Aguardando pilagem</span><strong id="statQueue">0</strong><small>Na fila manual</small></article>
+    <article class="stat"><span>Concluídos</span><strong id="statDone">0</strong><small>Serviços finalizados</small></article>
+    <article class="stat"><span>Peso processado</span><strong id="statWeight">0 kg</strong><small>Peso final registrado</small></article>
+  </div>
+  <div class="two-col">
+    <article class="panel"><div class="panel-title"><div><h2>Secadores</h2><p class="muted">Dois equipamentos em paralelo</p></div><span class="pill">Capacidade operacional: 2</span></div><div id="dryers" class="dryer-grid"></div></article>
+    <article class="panel"><div class="panel-title"><div><h2>Máquina de pilagem</h2><p class="muted">Uma operação por vez</p></div><span class="pill">1 máquina</span></div><div id="hullingNow"></div></article>
+  </div>
+  <article class="panel"><div class="panel-title"><div><h2>Próximas etapas</h2><p class="muted">Serviços em andamento</p></div><button class="text-btn" data-goto="services">Ver todos →</button></div><div id="recentServices" class="list"></div></article>
+</section>

@@ -1,13 +1,14 @@
-const CACHE = 'cafeflow-v31';
+const CACHE = 'cafeflow-v32';
 const FILES = [
   './',
   './index.html',
-  './css/styles.css?v=31',
-  './js/main.js?v=31',
-  './js/app.js?v=31',
+  './css/styles.css?v=32',
+  './js/main.js?v=32',
+  './js/app.js?v=32',
   './js/domain.js',
   './js/storage.js',
   './js/cloud.js',
+  './js/supabase-key.mjs',
   './js/sync.js',
   './views/dashboard.html',
   './views/clients.html',
@@ -15,7 +16,7 @@ const FILES = [
   './views/warehouse.html',
   './views/queue.html',
   './views/quotation.html',
-  './views/backup.html?v=31',
+  './views/backup.html?v=32',
   './views/account.html',
   './manifest.webmanifest',
   './assets/icon.svg'

@@ -1,3 +1,5 @@
+import { isPublishableSupabaseKey } from './supabase-key.mjs';
+
 const ACCOUNT_BINDING_KEY = 'cafeflow-account-binding';
 const ACTIVE_ACCOUNT_KEY = 'cafeflow-active-account';
 const SDK_URL = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
@@ -35,7 +37,7 @@ export async function getSupabaseClient() {
         throw new Error('A URL configurada para o Supabase é inválida.');
       }
       if ((projectUrl.protocol !== 'https:' && projectUrl.hostname !== 'localhost') ||
-          !/^(sb_publishable_[A-Za-z0-9_-]+|eyJ[A-Za-z0-9_-]+\.)/.test(config.publishableKey)) {
+          !isPublishableSupabaseKey(config.publishableKey)) {
         throw new Error('Use HTTPS e uma chave publishable/anon. Chaves secret ou service_role não podem ser usadas no navegador.');
       }
       const { createClient } = await import(SDK_URL);

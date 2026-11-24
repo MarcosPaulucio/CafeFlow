@@ -5,7 +5,7 @@ const screens = [
   ['warehouse', './views/warehouse.html'],
   ['queue', './views/queue.html'],
   ['quotation', './views/quotation.html'],
-  ['backup', './views/backup.html?v=31'],
+  ['backup', './views/backup.html?v=32'],
   ['account', './views/account.html']
 ];
 
@@ -26,7 +26,7 @@ async function loadScreens(host) {
 const host = document.getElementById('viewHost');
 try {
   await loadScreens(host);
-  await import('./app.js?v=31');
+  await import('./app.js?v=32');
 } catch (error) {
   console.error(error);
   const message = document.createElement('p');

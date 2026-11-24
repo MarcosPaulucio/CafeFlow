@@ -54,6 +54,12 @@ O CafeFlow usa uma conta compartilhada pelo estabelecimento. A tela **Conta** pe
 
 O SDK do Supabase é carregado sob demanda pela internet ao abrir a tela de conta; as telas e os dados locais continuam disponíveis offline. Nunca coloque uma chave `secret` ou `service_role` no navegador. A chave publishable é destinada ao cliente e depende das políticas RLS para proteger os dados.
 
+## Publicar na Vercel
+1. Importe `MarcosPaulucio/CafeFlow` na Vercel com a integração do GitHub e mantenha a raiz do projeto na pasta principal do repositório.
+2. Cadastre `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` nas variáveis de ambiente de **Production** e **Preview**. Use a URL HTTPS do projeto e a chave publishable (ou anon); nunca use `secret` ou `service_role`.
+3. O `vercel.json` executa `scripts/generate-supabase-config.mjs` no build. O script valida as variáveis e cria `js/supabase-config.js`, que é ignorado pelo Git, sem expor chaves privadas no repositório.
+4. Após o primeiro deploy, adicione o domínio `https://<seu-projeto>.vercel.app` como **Site URL** e como URL de redirecionamento permitida no Supabase, por exemplo `https://<seu-projeto>.vercel.app/**`. Mantenha também `http://localhost:8000/**` para desenvolvimento local.
+
 ## Observações desta versão
 - Esta é uma primeira versão funcional para testes, ainda não auditada para produção.
 - O Service Worker guarda os arquivos do app para acesso offline. A primeira abertura deve ocorrer com conexão.

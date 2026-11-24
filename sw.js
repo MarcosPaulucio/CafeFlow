@@ -1,10 +1,10 @@
-const CACHE = 'cafeflow-v32';
+const CACHE = 'cafeflow-v33';
 const FILES = [
   './',
   './index.html',
-  './css/styles.css?v=32',
-  './js/main.js?v=32',
-  './js/app.js?v=32',
+  './css/styles.css?v=33',
+  './js/main.js?v=33',
+  './js/app.js?v=33',
   './js/domain.js',
   './js/storage.js',
   './js/cloud.js',

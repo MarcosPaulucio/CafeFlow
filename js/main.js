@@ -26,7 +26,7 @@ async function loadScreens(host) {
 const host = document.getElementById('viewHost');
 try {
   await loadScreens(host);
-  await import('./app.js?v=32');
+  await import('./app.js?v=33');
 } catch (error) {
   console.error(error);
   const message = document.createElement('p');

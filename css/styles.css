@@ -155,8 +155,10 @@ button {
   font-weight: 600;
 }
 
+.nav-icon { flex: 0 0 20px; text-align: center; }
 .nav:hover { background: #f3f5f1; color: var(--forest); }
 .nav.active { background: var(--forest); color: #fff; box-shadow: 0 6px 16px rgba(23, 62, 45, .11); }
+.mobile-more { display: none; }
 
 main {
   padding: 34px 38px 48px;
@@ -459,7 +461,51 @@ dialog form, #detailContent { padding: 22px; }
   .connection { width: 10px; height: 10px; padding: 0; border: 0; font-size: 0; background: transparent; }
   .connection::before { width: 8px; height: 8px; box-shadow: none; }
   .layout { min-height: calc(100vh - 62px); }
-  .sidebar { top: 62px; }
+  .sidebar {
+    position: fixed;
+    top: auto;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 20;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 2px;
+    padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+    overflow: visible;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, .97);
+    box-shadow: 0 -6px 24px rgba(32, 52, 40, .07);
+    backdrop-filter: blur(12px);
+  }
+  .sidebar > .nav-secondary { display: none; }
+  .nav, .nav.mobile-more {
+    width: 100%;
+    height: 52px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    margin: 0;
+    padding: 4px 2px;
+    border-radius: 9px;
+    text-align: center;
+    font-size: 18px;
+  }
+  .nav span {
+    max-width: 100%;
+    margin: 0;
+    overflow: hidden;
+    font-size: 10px;
+    line-height: 1.1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .nav .nav-icon { flex-basis: auto; font-size: 17px; line-height: 1; }
+  .nav.mobile-more { display: flex; }
+  main { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
   .page-heading { align-items: flex-start; }
   .page-heading h1 { font-size: 21px; }
   .page-heading .primary { padding: 9px 10px; font-size: 10px; white-space: nowrap; }
@@ -503,6 +549,42 @@ button:focus-visible, input:focus-visible { outline: 3px solid #7fa68b; outline-
   .account-form { grid-template-columns: 1fr; }
   .account-panel .panel-title { align-items: flex-start; }
   .account-actions > button { flex: 1 1 100%; }
+}
+
+.mobile-more-dialog {
+  width: 100%;
+  max-width: none;
+  max-height: min(70vh, 480px);
+  margin: 0;
+  padding: 0;
+  position: fixed;
+  inset: auto 0 0;
+  border: 0;
+  border-radius: 18px 18px 0 0;
+  background: var(--surface);
+  box-shadow: 0 -12px 40px rgba(18, 38, 27, .18);
+}
+.mobile-more-dialog::backdrop { background: rgba(18, 32, 23, .42); }
+.mobile-more-content { padding: 20px 16px calc(18px + env(safe-area-inset-bottom)); }
+.mobile-more-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.mobile-more-header h2 { margin: 0; font: 700 18px "Manrope", sans-serif; color: var(--forest); }
+.mobile-more-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.mobile-more-list .nav {
+  height: 58px;
+  flex-direction: row;
+  justify-content: flex-start;
+  gap: 9px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  background: #fff;
+  color: var(--ink);
+  font-size: 16px;
+}
+.mobile-more-list .nav span { margin: 0; font-size: 12px; }
+.mobile-more-list .nav .nav-icon { flex: 0 0 20px; font-size: 17px; }
+.mobile-more-list .nav.active { border-color: var(--forest); background: var(--sage); color: var(--forest); box-shadow: none; }
+@media (min-width: 601px) {
+  .mobile-more-dialog { display: none; }
 }
 .coffee-payment-summary small { display: block; color: var(--muted); font-size: 9px; }
 .coffee-payment-summary strong { display: block; margin-top: 5px; color: var(--forest); font-size: 12px; }

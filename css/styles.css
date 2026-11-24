@@ -488,6 +488,22 @@ dialog form, #detailContent { padding: 22px; }
 .coffee-payment-fields { margin-top: 12px; }
 .coffee-payment-summary { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
 .coffee-payment-summary > div { padding: 10px; border-radius: 8px; background: #f5f7f3; }
+.account-panel { margin-bottom: 16px; }
+.account-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.account-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
+.account-status { min-height: 1.4em; margin: 14px 0 0; color: var(--muted); font-size: 12px; }
+.sync-badge { border-radius: 30px; padding: 6px 10px; color: var(--forest); background: var(--sage); font-size: 11px; font-weight: 700; white-space: nowrap; }
+.sync-conflict { border: 1px solid var(--line); border-radius: 10px; padding: 14px; margin-top: 12px; }
+.sync-conflict h3 { margin: 0 0 7px; font-size: 14px; }
+.sync-conflict p { margin: 6px 0; color: var(--muted); font-size: 12px; }
+.sync-conflict pre { max-height: 180px; overflow: auto; padding: 10px; border-radius: 7px; background: #f5f7f3; font-size: 11px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.sync-conflict-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+button:focus-visible, input:focus-visible { outline: 3px solid #7fa68b; outline-offset: 2px; }
+@media (max-width: 600px) {
+  .account-form { grid-template-columns: 1fr; }
+  .account-panel .panel-title { align-items: flex-start; }
+  .account-actions > button { flex: 1 1 100%; }
+}
 .coffee-payment-summary small { display: block; color: var(--muted); font-size: 9px; }
 .coffee-payment-summary strong { display: block; margin-top: 5px; color: var(--forest); font-size: 12px; }
 .coffee-payment-summary .coffee-payment-value { grid-column: 1 / -1; }
@@ -507,6 +523,7 @@ dialog form, #detailContent { padding: 22px; }
 .backup-layout .panel { min-width: 0; }
 .backup-layout .panel-title { align-items: flex-start; }
 .backup-layout .primary { margin-top: 6px; }
+.backup-layout .secondary { margin-top: 6px; }
 .backup-preview { margin: 12px 0; padding: 12px; border: 1px solid var(--line); border-radius: 9px; background: #f5f7f3; color: var(--ink); font-size: 12px; line-height: 1.6; }
 .backup-status { margin-top: 14px; padding: 12px 14px; border-radius: 9px; background: var(--sage); color: var(--forest); font-size: 12px; line-height: 1.5; }
 .backup-warning { color: #8b4d12; }

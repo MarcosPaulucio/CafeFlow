@@ -2,7 +2,7 @@
 import { capacities, statuses, parseLocalizedNumber } from './domain.js';
 
 const DB_NAME = 'cafeflow-db';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const BACKUP_FORMAT = 'cafeflow-backup';
 const BACKUP_VERSION = 1;
 export const BACKUP_MAX_BYTES = 10 * 1024 * 1024;
@@ -15,6 +15,9 @@ export function initializeStorage() {
       const database = request.result;
       if (!database.objectStoreNames.contains('clients')) database.createObjectStore('clients', { keyPath: 'id' });
       if (!database.objectStoreNames.contains('services')) database.createObjectStore('services', { keyPath: 'id' });
+      if (!database.objectStoreNames.contains('sync_queue')) database.createObjectStore('sync_queue', { keyPath: 'key' });
+      if (!database.objectStoreNames.contains('sync_metadata')) database.createObjectStore('sync_metadata', { keyPath: 'key' });
+      if (!database.objectStoreNames.contains('sync_conflicts')) database.createObjectStore('sync_conflicts', { keyPath: 'key' });
     };
     request.onsuccess = () => {
       db = request.result;
@@ -32,19 +35,175 @@ export function getAll(store) {
   });
 }
 
-export function saveRecord(store, record) {
+function syncKey(resource, id) {
+  return `${resource}:${id}`;
+}
+
+function queueSyncOperation(transaction, resource, id, operation, payload, userId, baseUpdatedAtOverride) {
+  const key = syncKey(resource, id);
+  const queueStore = transaction.objectStore('sync_queue');
+  const queueRequest = queueStore.get(key);
+  const metadataRequest = transaction.objectStore('sync_metadata').get(key);
+  const conflictStore = transaction.objectStore('sync_conflicts');
+  const conflictRequest = conflictStore.get(key);
+  let queueLoaded = false;
+  let metadataLoaded = false;
+  let conflictLoaded = false;
+  const save = () => {
+    if (!queueLoaded || !metadataLoaded || !conflictLoaded) return;
+    const previous = queueRequest.result;
+    const metadata = metadataRequest.result;
+    const queued = {
+      key,
+      resource,
+      id,
+      operation,
+      payload: payload ?? previous?.payload ?? null,
+      userId,
+      baseUpdatedAt: baseUpdatedAtOverride !== undefined
+        ? baseUpdatedAtOverride
+        : previous?.baseUpdatedAt ?? metadata?.updatedAt ?? null,
+      revision: (previous?.revision || 0) + 1,
+      queuedAt: Date.now()
+    };
+    queueStore.put(queued);
+    if (conflictRequest.result) {
+      conflictStore.put({
+        ...conflictRequest.result,
+        localOperation: operation,
+        localPayload: queued.payload,
+        pendingRevision: queued.revision
+      });
+    }
+  };
+  queueRequest.onsuccess = () => { queueLoaded = true; save(); };
+  metadataRequest.onsuccess = () => { metadataLoaded = true; save(); };
+  conflictRequest.onsuccess = () => { conflictLoaded = true; save(); };
+}
+
+export function saveRecord(store, record, syncUserId = null) {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(store, 'readwrite');
+    const shouldQueue = Boolean(syncUserId) && ['clients', 'services'].includes(store);
+    const stores = shouldQueue ? [store, 'sync_queue', 'sync_metadata', 'sync_conflicts'] : [store];
+    const transaction = db.transaction(stores, 'readwrite');
     transaction.objectStore(store).put(record);
+    if (shouldQueue) queueSyncOperation(transaction, store, record.id, 'upsert', record, syncUserId);
     transaction.oncomplete = () => resolve(record);
     transaction.onerror = () => reject(transaction.error);
   });
 }
 
-export function deleteRecord(store, id) {
+export function deleteRecord(store, id, syncUserId = null, record = null) {
   return new Promise((resolve, reject) => {
-    const transaction = db.transaction(store, 'readwrite');
+    const shouldQueue = Boolean(syncUserId) && ['clients', 'services'].includes(store);
+    const stores = shouldQueue ? [store, 'sync_queue', 'sync_metadata', 'sync_conflicts'] : [store];
+    const transaction = db.transaction(stores, 'readwrite');
     transaction.objectStore(store).delete(id);
+    if (shouldQueue) queueSyncOperation(transaction, store, id, 'delete', record, syncUserId);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+export function queueSyncChange(resource, id, operation, payload, userId, baseUpdatedAtOverride) {
+  return queueSyncChanges([{ resource, id, operation, payload, baseUpdatedAtOverride }], userId);
+}
+
+export function queueSyncChanges(changes, userId) {
+  if (!userId || !Array.isArray(changes) || changes.some(change =>
+    !['clients', 'services', 'quotes'].includes(change.resource) ||
+    !['upsert', 'delete'].includes(change.operation) ||
+    !change.id ||
+    (change.resource === 'quotes' && change.operation === 'delete')
+  )) return Promise.reject(new Error('Não foi possível preparar as alterações para sincronização.'));
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['sync_queue', 'sync_metadata', 'sync_conflicts'], 'readwrite');
+    changes.forEach(change => queueSyncOperation(
+      transaction,
+      change.resource,
+      change.id,
+      change.operation,
+      change.payload,
+      userId,
+      change.baseUpdatedAtOverride
+    ));
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+export function getSyncQueue(userId) {
+  return getAll('sync_queue').then(records => records.filter(record => record.userId === userId));
+}
+
+export function getSyncConflicts(userId) {
+  return getAll('sync_conflicts').then(records => records.filter(record => record.userId === userId));
+}
+
+export function saveSyncConflict(conflict) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('sync_conflicts', 'readwrite');
+    transaction.objectStore('sync_conflicts').put(conflict);
+    transaction.oncomplete = () => resolve(conflict);
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+export function removeSyncConflict(key) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('sync_conflicts', 'readwrite');
+    transaction.objectStore('sync_conflicts').delete(key);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+export function clearSyncChange(key, expectedRevision = null) {
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('sync_queue', 'readwrite');
+    const store = transaction.objectStore('sync_queue');
+    if (expectedRevision === null) store.delete(key);
+    else {
+      const request = store.get(key);
+      request.onsuccess = () => {
+        if (request.result?.revision === expectedRevision) store.delete(key);
+      };
+    }
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+export function saveSyncMetadata(resource, id, metadata) {
+  const key = syncKey(resource, id);
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('sync_metadata', 'readwrite');
+    transaction.objectStore('sync_metadata').put({ key, resource, id, ...metadata });
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+export function getSyncMetadata(resource, id) {
+  return new Promise((resolve, reject) => {
+    const request = db.transaction('sync_metadata').objectStore('sync_metadata').get(syncKey(resource, id));
+    request.onsuccess = () => resolve(request.result || null);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+export function completeSyncChange(resource, id, revision, metadata) {
+  const key = syncKey(resource, id);
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(['sync_queue', 'sync_metadata'], 'readwrite');
+    const queueStore = transaction.objectStore('sync_queue');
+    const request = queueStore.get(key);
+    request.onsuccess = () => {
+      const current = request.result;
+      transaction.objectStore('sync_metadata').put({ key, resource, id, ...metadata });
+      if (current?.revision === revision) queueStore.delete(key);
+      else if (current) queueStore.put({ ...current, baseUpdatedAt: metadata.updatedAt });
+    };
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error);
   });

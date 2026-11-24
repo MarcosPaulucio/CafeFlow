@@ -1,0 +1,54 @@
+<section id="account" class="view" hidden>
+  <div class="page-heading">
+    <div>
+      <p class="eyebrow">DADOS COMPARTILHADOS</p>
+      <h1>Conta e sincronização</h1>
+      <p class="muted">Entre com a conta do estabelecimento para compartilhar alterações futuras entre os aparelhos.</p>
+    </div>
+  </div>
+  <article id="accountSignedOut" class="panel account-panel">
+    <div class="panel-title">
+      <div>
+        <h2>Entrar na conta CafeFlow</h2>
+        <p class="muted">Use o mesmo e-mail e senha nos aparelhos do estabelecimento.</p>
+      </div>
+    </div>
+    <form id="accountForm" class="account-form">
+      <label for="accountEmail">E-mail
+        <input id="accountEmail" type="email" autocomplete="username" required maxlength="254" placeholder="voce@exemplo.com">
+      </label>
+      <label for="accountPassword">Senha
+        <input id="accountPassword" type="password" autocomplete="current-password" required minlength="8" maxlength="128" placeholder="Mínimo de 8 caracteres">
+      </label>
+      <div class="account-actions">
+        <button id="accountSignInBtn" class="primary" type="submit">Entrar</button>
+        <button id="accountSignUpBtn" class="secondary" type="button">Criar conta do estabelecimento</button>
+      </div>
+    </form>
+    <p id="accountStatus" class="account-status" role="status" aria-live="polite">Os dados já existentes neste aparelho não serão enviados automaticamente.</p>
+  </article>
+  <article id="accountSignedIn" class="panel account-panel" hidden>
+    <div class="panel-title">
+      <div>
+        <h2>Conta conectada</h2>
+        <p id="accountEmailLabel" class="muted"></p>
+      </div>
+      <span id="syncBadge" class="sync-badge">Pronto</span>
+    </div>
+    <p class="hint">Somente alterações feitas enquanto esta conta estiver conectada serão enviadas automaticamente. Para migrar dados antigos, use a importação explícita do backup JSON.</p>
+    <div class="account-actions">
+      <button id="syncNowBtn" class="primary" type="button">Sincronizar agora</button>
+      <button id="accountSignOutBtn" class="secondary" type="button">Sair deste aparelho</button>
+    </div>
+    <p id="syncStatus" class="account-status" role="status" aria-live="polite">Aguardando sincronização.</p>
+  </article>
+  <article id="syncConflictsPanel" class="panel account-panel" hidden>
+    <div class="panel-title">
+      <div>
+        <h2>Revisar conflitos</h2>
+        <p class="muted">Escolha qual versão manter para cada registro alterado em mais de um aparelho.</p>
+      </div>
+    </div>
+    <div id="syncConflictList" class="sync-conflict-list"></div>
+  </article>
+</section>

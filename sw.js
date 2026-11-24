@@ -1,1 +1,64 @@
-const CACHE='cafeflow-v26';const FILES=['./','./index.html','./css/styles.css?v=26','./js/main.js?v=26','./js/app.js?v=26','./js/domain.js','./js/storage.js','./views/dashboard.html','./views/clients.html','./views/services.html','./views/warehouse.html','./views/queue.html','./views/quotation.html','./views/backup.html','./manifest.webmanifest','./assets/icon.svg'];self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FILES)).then(()=>self.skipWaiting())));self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(cached=>cached||fetch(e.request).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(e.request,copy));return res;}).catch(()=>caches.match('./index.html'))));});
+const CACHE = 'cafeflow-v31';
+const FILES = [
+  './',
+  './index.html',
+  './css/styles.css?v=31',
+  './js/main.js?v=31',
+  './js/app.js?v=31',
+  './js/domain.js',
+  './js/storage.js',
+  './js/cloud.js',
+  './js/sync.js',
+  './views/dashboard.html',
+  './views/clients.html',
+  './views/services.html',
+  './views/warehouse.html',
+  './views/queue.html',
+  './views/quotation.html',
+  './views/backup.html?v=31',
+  './views/account.html',
+  './manifest.webmanifest',
+  './assets/icon.svg'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE)
+      .then(cache => cache.addAll(FILES))
+      .then(() => self.skipWaiting())
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin || url.pathname.endsWith('/js/supabase-config.js')) return;
+
+  const isAppAsset = url.pathname === '/' ||
+    /\.(css|js|html|webmanifest|svg|png|woff2?)$/i.test(url.pathname);
+  if (!isAppAsset) return;
+
+  event.respondWith(
+    caches.match(event.request).then(cached => {
+      if (cached) return cached;
+      return fetch(event.request).then(response => {
+        if (response.ok && response.type === 'basic') {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+        }
+        return response;
+      }).catch(() => {
+        if (event.request.mode === 'navigate') return caches.match('./index.html');
+        return Response.error();
+      });
+    })
+  );
+});

@@ -13,6 +13,8 @@
       <label for="backupMode">Como restaurar<select id="backupMode"><option value="merge">Mesclar: adicionar somente registros que ainda não existem</option><option value="replace">Substituir todos os clientes e serviços atuais</option></select></label>
       <p id="backupModeHint" class="hint">Na mesclagem, os registros atuais têm prioridade quando o ID já existe.</p>
       <button class="primary" id="backupImportBtn" type="button" disabled>Restaurar backup</button>
+      <p class="hint">O envio à nuvem é separado da restauração local, exige confirmação e fica disponível ao entrar na conta do estabelecimento. Ele sempre mescla e preserva os dados locais com o mesmo ID, mesmo se a opção acima estiver em “Substituir”.</p>
+      <button class="secondary" id="backupCloudImportBtn" type="button" disabled>Mesclar backup e enviar à nuvem</button>
     </article>
   </div>
   <p id="backupStatus" class="backup-status" role="status" aria-live="polite">A restauração só é executada após selecionar um arquivo válido e confirmar a ação.</p>

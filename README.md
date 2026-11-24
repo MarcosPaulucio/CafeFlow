@@ -40,18 +40,19 @@ O Service Worker e a instalação PWA precisam de `localhost` ou HTTPS. Não abr
 Instale a extensão **Live Server**, clique com o botão direito em `index.html` e escolha **Open with Live Server**.
 
 ## Dados e privacidade
-Clientes e serviços ainda são armazenados no IndexedDB do navegador/dispositivo; a sincronização em nuvem ainda não está ativada. O esquema inicial do Supabase já está preparado, mas não conecte nem importe dados antes de concluir a configuração de autenticação e sincronização. Limpar os dados do navegador pode apagar os registros locais. Exporte um backup antes de trocar de aparelho.
+Clientes e serviços continuam armazenados no IndexedDB deste navegador, e a cotação diária no armazenamento local. Com uma conta CafeFlow conectada, novas alterações são colocadas em uma fila local e sincronizadas com o Supabase quando há conexão. Ao entrar pela primeira vez, dados existentes neste aparelho não são enviados automaticamente; use a importação explícita do backup quando estiver pronto para migrá-los. Limpar os dados do navegador pode apagar registros ainda não sincronizados. Exporte backups regularmente.
 
-## Preparação para sincronização Supabase
-O CafeFlow foi definido para usar uma conta compartilhada pelo estabelecimento nos seus aparelhos. O arquivo `supabase/schema.sql` cria tabelas para clientes, serviços e cotações, com políticas de Row Level Security que restringem cada conta aos próprios dados.
+## Conta e sincronização Supabase
+O CafeFlow usa uma conta compartilhada pelo estabelecimento. A tela **Conta** permite criar uma conta com e-mail e senha, entrar e sair deste aparelho e sincronizar alterações. O Supabase pode exigir confirmação do e-mail antes do primeiro acesso.
 
-1. Crie um projeto no Supabase e abra o **SQL Editor**.
-2. Execute o conteúdo de `supabase/schema.sql`.
-3. Configure um arquivo `js/supabase-config.js` a partir de `js/supabase-config.example.js`, usando a URL do projeto e a chave **publishable** (ou anon) do projeto.
-4. Nunca use nem publique a chave `service_role`. O arquivo local de configuração é ignorado pelo Git.
-5. A autenticação, sincronização offline e migração de backup JSON ainda precisam ser implementadas antes de usar os dados na nuvem.
+1. No Supabase, execute `supabase/schema.sql` no **SQL Editor**. O esquema cria tabelas para clientes, serviços e cotações, com RLS por conta.
+2. Crie `js/supabase-config.js` seguindo `js/supabase-config.example.js`, usando a URL do projeto e uma chave **publishable** (ou anon). Esse arquivo é ignorado pelo Git.
+3. Configure a URL de redirecionamento de autenticação do Supabase para o endereço onde o app está aberto. Para o servidor local padrão, permita `http://localhost:8000/**`. Ao publicar em HTTPS, adicione também o domínio publicado.
+4. Abra **Conta**, crie a conta do estabelecimento uma vez e entre com ela nos outros aparelhos.
+5. As alterações novas são enfileiradas localmente e sincronizadas quando online. Se a mesma informação divergir entre aparelhos, a tela **Conta** solicita uma decisão; o app não escolhe silenciosamente uma versão.
+6. Para migrar registros anteriores, selecione um backup válido na tela **Backup** e use **Mesclar backup e enviar à nuvem**. A ação exige confirmação, mescla os registros no aparelho sem substituir os dados locais com IDs iguais e envia somente os registros incluídos naquele arquivo. Divergências com a nuvem ficam para revisão manual. **Restaurar backup** continua sendo uma operação somente local e não envia dados automaticamente.
 
-O arquivo de backup JSON continuará sendo o caminho de migração escolhido para os registros locais. A importação deverá ser feita após o login, com prévia e confirmação; nenhum registro local é enviado automaticamente.
+O SDK do Supabase é carregado sob demanda pela internet ao abrir a tela de conta; as telas e os dados locais continuam disponíveis offline. Nunca coloque uma chave `secret` ou `service_role` no navegador. A chave publishable é destinada ao cliente e depende das políticas RLS para proteger os dados.
 
 ## Observações desta versão
 - Esta é uma primeira versão funcional para testes, ainda não auditada para produção.
